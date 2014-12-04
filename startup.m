@@ -1,0 +1,1 @@
+run('C:\vlfeat-0.9.19\toolbox\vl_setup')
