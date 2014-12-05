@@ -69,8 +69,8 @@ conf.svm.solver = 'sdca' ;
 
 conf.svm.biasMultiplier = 1 ;
 conf.phowOpts = {'Step', 3} ;
-conf.clobber = false ;
-conf.tinyProblem = true ;
+conf.clobber = true ;
+conf.tinyProblem = false ;
 conf.prefix = 'baseline' ;
 conf.randSeed = 1 ;
 
