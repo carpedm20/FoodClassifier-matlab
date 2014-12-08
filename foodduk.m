@@ -39,6 +39,8 @@ imageClass = {} ;
 selTrainImages = {};
 selTestImages = {};
 
+fprintf('Basic setup for Image\n') ;
+
 for ci = 1:length(classes)
   ims = dir(fullfile(conf.calDir, classes{ci}, 'crop_*.jpg'))' ;
   
@@ -52,7 +54,8 @@ for ci = 1:length(classes)
   selTrainImages = {selTrainImages{:}, ims{1:numTrain}};
   selTestImages = {selTestImages{:}, ims{1:numTest}};
   
-  images = {images{:}, ims{:}} ;
+  tmp = vl_colsubset(ims,20);
+  images = {images{:}, tmp{:}} ;
   imageClass{end+1} = ci * ones(1,length(ims)) ;
 end
 
@@ -74,10 +77,13 @@ model.w = [] ;
 model.b = [] ;
 model.classify = @classify ;
 
+fprintf('Compute vocaburary\n') ;
+
+
 if ~exist(conf.vocabPath)
 
-  selTrainFeats = selTrain ;
-  %selTrainFeats = vl_colsubset(selTrain, 30) ;
+  %selTrainFeats = selTrain ;
+  selTrainFeats = vl_colsubset(selTrain, 30) ;
   descrs = {} ;
   %for ii = 1:2
   parfor ii = 1:length(selTrainFeats)
@@ -92,7 +98,7 @@ if ~exist(conf.vocabPath)
 
   % Quantize the descriptors to get the visual words
   vocab = vl_kmeans(descrs, conf.numWords, 'verbose', 'algorithm', 'elkan', 'MaxNumIterations', 100) ;
-  save(conf.vocabPath, 'vocab') ;
+  save(conf.vocabPath, 'vocab', '-v7.3') ;
 else
   load(conf.vocabPath) ;
 end
@@ -108,6 +114,8 @@ tic
 % --------------------------------------------------------------------
 %                                           Compute spatial histograms
 % --------------------------------------------------------------------
+
+fprintf('Compute spatial histograms\n') ;
 
 if ~exist(conf.histPath)
   hists = {} ;
@@ -130,11 +138,15 @@ tic
 % http://www.robots.ox.ac.uk/~vgg/software/homkermap/
 % --------------------------------------------------------------------
 
+fprintf('Compute feature map\n') ;
+
 psix = vl_homkermap(hists, 1, 'kchi2', 'gamma', .5) ;
 
 % --------------------------------------------------------------------
 %                                                            Train SVM
 % --------------------------------------------------------------------
+
+fprintf('Train SVM\n') ;
 
 if ~exist(conf.modelPath)
   switch conf.svm.solver
@@ -142,6 +154,7 @@ if ~exist(conf.modelPath)
       lambda = 1 / (conf.svm.C *  length(selTrain)) ;
       w = [] ;
       parfor ci = 1:length(classes)
+      %for ci = 1:length(classes)
         perm = randperm(length(selTrain)) ;
         fprintf('Training model for class %s\n', classes{ci}) ;
         y = 2 * (imageClass(selTrain) == ci) - 1 ;
@@ -175,6 +188,8 @@ tic
 % --------------------------------------------------------------------
 %                                                Test SVM and evaluate
 % --------------------------------------------------------------------
+
+fprintf('Test SVM and evaluate\n') ;
 
 % Estimate the class of the test images
 scores = model.w' * psix + model.b' * ones(1,size(psix,2)) ;
