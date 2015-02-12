@@ -3,6 +3,8 @@ FoodClassifier
 
 Food Image Classifier with Deep Convolutional Network
 
+This code is used to write [Food Image Recognition: Boosting with Shallow Handcrafted Feature and Deep Convolutional Feature](https://drive.google.com/file/d/0ByTS2HBKYvZxeHNhbUN1UkhGWjd2RTJYRkphb3dkSjVBbjJn/view)
+
 
 Link
 ----
